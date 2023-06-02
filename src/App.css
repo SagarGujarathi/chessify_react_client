@@ -1,38 +1,36 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+.chess-container {
+    min-height: 100vh;
+    display: grid;
+    margin: 0 .4rem;
+    grid-template-columns: repeat(8, minmax(auto, 95px)) minmax(auto, 650px);
+    grid-template-rows: repeat(8, auto);
+    justify-content: center;
+    align-content: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.display-container {
+    background-color: #222831;
+    grid-row: 1 / 9;
+    grid-column: 9 / 10;
+    margin-left: 15px;
+    border-radius: 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
+@media (max-width : 1200px) {
+    .chess-container {
+        grid-template-columns: repeat(8, minmax(auto, 95px));
+        grid-template-rows: repeat(8, auto) minmax(auto, 150px);
+    }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    .display-container {
+        grid-row: 9/ 10;
+        grid-column: 1 / 9;
+        margin: 10px 0px;
+        grid-template-rows: repeat(3, 1fr) 1fr !important;
+        grid-template-columns: 5fr 1fr 1fr !important;
+        grid-gap: 5px !important;
+        font-size: 0.5rem !important;
+    }
 }

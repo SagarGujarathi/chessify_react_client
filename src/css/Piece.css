@@ -1,0 +1,8 @@
+.chess-piece {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    aspect-ratio: 1/1;
+    cursor: pointer;
+    overflow: hidden;
+}
