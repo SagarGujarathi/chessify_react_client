@@ -7,7 +7,7 @@ function Piece({ data, index }) {
     return (
         <div
             className="chess-piece"
-            onClick={() => dispatch({ type: TYPES.SELECTPIECE, payload: { index: index, piece: data.piece } })}
+            onClick={() => dispatch({ type: TYPES.SELECTPIECE, payload: { index: index, piece: data.piece, color: data.color } })}
             style={
                 {
                     backgroundImage: `url(${data.image})`,
