@@ -8,7 +8,7 @@ export const chessContext = createContext()
 function App() {
 
   const [state, dispatch] = useReducer(handleReducer, STATETEMPLATE)
-  
+
   return (
     <>
       <chessContext.Provider value={{ chess: state, dispatch }}>

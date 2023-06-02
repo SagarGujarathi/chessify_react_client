@@ -29,7 +29,10 @@ export const CONSTANTS = {
     SELECTCOLOR: 'rgb(205, 233, 144)',
     WHITE: 'rgb(245, 245, 245)',
     GREEN: 'rgb(63, 193, 201)',
-    PATHIMAGE: circle
+    DANGERCOLOR: 'rgb(244, 132, 132)',
+    PATHIMAGE: circle,
+    OPPONENTPATH: 'opponentpath',
+    DANGERPATH: 'dangerpath'
 }
 export const PIECES = { blackpawn, whitepawn, blackrook, whiterook, blackknight, whiteknight, blackqueen, whitequeen, blackking, whiteking }
 export const POSITION =
@@ -55,44 +58,44 @@ export const POSITION =
             { piece: NAMING.PAWN, color: COLOR.BLACK, image: blackpawn },
         ],
         [
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
         ],
         [
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
         ],
         [
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
         ],
         [
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
-            { piece: NAMING.PAWN, color: COLOR, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
 
         ],
         [
@@ -124,10 +127,22 @@ export const STATETEMPLATE = {
     selectedMove: {
         index: {}
     },
-    chance: COLOR.BLACK,
+    chance: COLOR.WHITE,
     chess: POSITION
 }
 
 export const TYPES = {
     SELECTPIECE: 'selectpiece'
+}
+
+export const MOVES = {
+    TOP: { i: -1, j: 0 },
+    BOTTOM: { i: 1, j: 0 },
+    LEFT: { i: 0, j: -1 },
+    RIGHT: { i: 0, j: 1 },
+    TOPLEFT: { i: -1, j: -1 },
+    TOPRIGHT: { i: -1, j: 1 },
+    BOTTOMLEFT: { i: 1, j: -1 },
+    BOTTOMRIGHT: { i: 1, j: 1 },
+    DEFAULTMOVE: 'defaultmove'
 }

@@ -4,6 +4,20 @@ import { chessContext } from '../App'
 import { CONSTANTS, TYPES } from '../constants'
 function Piece({ data, index }) {
     const { chess, dispatch } = useContext(chessContext)
+    function handleColor(backgroundColor) {
+        if (backgroundColor != null) {
+            return backgroundColor
+        }
+        if ((chess.selectedPiece.index.i == index.i && chess.selectedPiece.index.j == index.j)) {
+            return CONSTANTS.SELECTCOLOR
+        }
+        else if ((index.i + index.j) % 2 == 0) {
+            return CONSTANTS.WHITE
+        }
+        else {
+            return CONSTANTS.GREEN
+        }
+    }
     return (
         <div
             className="chess-piece"
@@ -11,7 +25,7 @@ function Piece({ data, index }) {
             style={
                 {
                     backgroundImage: `url(${data.image})`,
-                    backgroundColor: (chess.selectedPiece.index.i == index.i && chess.selectedPiece.index.j == index.j) ? CONSTANTS.SELECTCOLOR : (index.i + index.j) % 2 == 0 ? CONSTANTS.WHITE : CONSTANTS.GREEN,
+                    backgroundColor: handleColor(data.backgroundColor),
                     gridColumn: `${index.j + 1}/${index.j + 2}`,
                     gridRow: `${index.i + 1}/${index.i + 2}`
                 }
