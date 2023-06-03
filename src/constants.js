@@ -34,7 +34,7 @@ export const CONSTANTS = {
     OPPONENTPATH: 'opponentpath',
     DANGERPATH: 'dangerpath'
 }
-export const PIECES = { blackpawn, whitepawn, blackrook, whiterook, blackknight, whiteknight, blackqueen, whitequeen, blackking, whiteking }
+export const PIECES = { blackpawn, whitepawn, blackrook, whiterook, blackknight, whiteknight, blackqueen, whitequeen, blackking, whiteking, blackbishop, whitebishop, default: '' }
 export const POSITION =
     [
         [
@@ -99,11 +99,11 @@ export const POSITION =
 
         ],
         [
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
             { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
-            { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
-            { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
-            { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
-            { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
             { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
             { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
             { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn }
@@ -124,15 +124,13 @@ export const STATETEMPLATE = {
         piece: '',
         index: {}
     },
-    selectedMove: {
-        index: {}
-    },
     chance: COLOR.WHITE,
     chess: POSITION
 }
 
 export const TYPES = {
-    SELECTPIECE: 'selectpiece'
+    SELECTPIECE: 'selectpiece',
+    SELECTMOVE: 'selectmove'
 }
 
 export const MOVES = {

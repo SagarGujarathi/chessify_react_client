@@ -1,10 +1,10 @@
 // Constants imports
 
-import { TYPES, NAMING, MOVES, CONSTANTS, COLOR } from "./constants"
+import { TYPES, NAMING, MOVES, CONSTANTS, COLOR, PIECES, STATETEMPLATE } from "./constants"
 
 // Function to check if present block has enemy or not
 function canMove(color1, color2) {
-    if (color1 == color2) {
+    if (color1 === color2) {
         return false
     }
     return true
@@ -25,28 +25,32 @@ function changeIndex({ i, j }, move) {
 
 // function to check if path to move is possible
 function isPossiblePath(element, color) {
-    if (element.piece == NAMING.DEFAULT) {
-        return { ...element, image: CONSTANTS.PATHIMAGE }
+    if (element.piece === NAMING.DEFAULT) {
+        return { check: true, payload: { ...element, image: CONSTANTS.PATHIMAGE } }
     }
-    if (element.color != color && element.color != COLOR.DEFAULT) {
-        return { ...element, backgroundColor: CONSTANTS.DANGERCOLOR }
+    if (element.color !== color && element.color !== COLOR.DEFAULT) {
+        return { check: false, payload: { ...element, backgroundColor: CONSTANTS.DANGERCOLOR } }
     }
     return element
 }
 
 // Rook Assist Logic
 function handleRookAssist(chess, { i, j }, piece, color, move) {
-    if (!verifyBoundary({ i, j }) || (move != MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
+    if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
         return chess
     }
-    if (move == MOVES.DEFAULTMOVE) {
+    if (move === MOVES.DEFAULTMOVE) {
         handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOP), piece, color, MOVES.TOP)
         handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOM), piece, color, MOVES.BOTTOM)
         handleRookAssist(chess, changeIndex({ i, j }, MOVES.LEFT), piece, color, MOVES.LEFT)
         handleRookAssist(chess, changeIndex({ i, j }, MOVES.RIGHT), piece, color, MOVES.RIGHT)
         return chess
     }
-    chess[i][j] = isPossiblePath(chess[i][j], color)
+    let data = isPossiblePath(chess[i][j], color)
+    chess[i][j] = data.payload
+    if (!data.check) {
+        return
+    }
     handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, move)
 }
 
@@ -61,13 +65,47 @@ function handleKnightAssist(chess, index, piece, color) {
 }
 
 // Bishop Assist Logic
-function handleBishopAssist(chess, index, piece, color) {
-    return chess
+function handleBishopAssist(chess, { i, j }, piece, color, move) {
+    if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
+        return chess
+    }
+    if (move === MOVES.DEFAULTMOVE) {
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPLEFT), piece, color, MOVES.TOPLEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMLEFT), piece, color, MOVES.BOTTOMLEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPRIGHT), piece, color, MOVES.TOPRIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMRIGHT), piece, color, MOVES.BOTTOMRIGHT)
+        return chess
+    }
+    let data = isPossiblePath(chess[i][j], color)
+    chess[i][j] = data.payload
+    if (!data.check) {
+        return
+    }
+    handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, move)
 }
 
 // Queen Assist Logic
-function handleQueenAssist(chess, index, piece, color) {
-    return chess
+function handleQueenAssist(chess, { i, j }, piece, color, move) {
+    if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
+        return chess
+    }
+    if (move === MOVES.DEFAULTMOVE) {
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOP), piece, color, MOVES.TOP)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOM), piece, color, MOVES.BOTTOM)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.LEFT), piece, color, MOVES.LEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.RIGHT), piece, color, MOVES.RIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPLEFT), piece, color, MOVES.TOPLEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMLEFT), piece, color, MOVES.BOTTOMLEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPRIGHT), piece, color, MOVES.TOPRIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMRIGHT), piece, color, MOVES.BOTTOMRIGHT)
+        return chess
+    }
+    let data = isPossiblePath(chess[i][j], color)
+    chess[i][j] = data.payload
+    if (!data.check) {
+        return
+    }
+    handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, move)
 }
 
 // King  Assist Logic
@@ -85,9 +123,9 @@ function handleMoveAssist(chess, chance, { index, piece, color }) {
         case NAMING.KNIGHT:
             return handleKnightAssist(chess, index, piece, color)
         case NAMING.BISHOP:
-            return handleBishopAssist(chess, index, piece, color)
+            return handleBishopAssist(chess, index, piece, color, MOVES.DEFAULTMOVE)
         case NAMING.QUEEN:
-            return handleQueenAssist(chess, index, piece, color)
+            return handleQueenAssist(chess, index, piece, color, MOVES.DEFAULTMOVE)
         case NAMING.KING:
             return handleKingAssist(chess, index, piece, color)
         default:
@@ -96,24 +134,45 @@ function handleMoveAssist(chess, chance, { index, piece, color }) {
 }
 
 // Function to verify if player choosen correct piece
-function verifySelectPiece(chess, chance, { index, piece, color }) {
-    if (chance === color) {
-        return handleMoveAssist(chess, chance, { index, piece, color })
-    }
-    return false
+function verifySelectPiece(chance, color) {
+    return (chance === color)
 }
 
+// Function to remove previous data
+function cleanData(state) {
+
+    state.chess = state.chess.map(row => {
+        return row.map(piece => {
+            return { piece: piece.piece, color: piece.color, image: PIECES[`${piece.color}${piece.piece}`] }
+        })
+    })
+    state.selectedPiece = STATETEMPLATE.selectedPiece
+    state.selectedMove = STATETEMPLATE.selectedMove
+    return state
+}
+
+// Function to handle select move
+function handleSelectMove(state, payload) {
+    if (state.selectedPiece.index.i !== undefined && state.selectedPiece.index.j !== undefined) {
+        state.chess[payload.index.i][payload.index.j] = state.chess[state.selectedPiece.index.i][state.selectedPiece.index.j]
+        state.chess[state.selectedPiece.index.i][state.selectedPiece.index.j] = { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' }
+    }
+    state = cleanData(state)
+    return state;
+}
 // Reducer function
 export function handleReducer(state, { type, payload }) {
     switch (type) {
         case TYPES.SELECTPIECE:
-            const data = verifySelectPiece(state.chess, state.chance, payload)
-            if (data != false) {
-                return { ...state, selectedPiece: payload, chess: data }
+            state = cleanData(state)
+            if (verifySelectPiece(state.chance, payload.color)) {
+                return { ...state, selectedPiece: payload, chess: handleMoveAssist(state.chess, state.chance, payload) }
             }
-            return state
+            return { ...state }
         case TYPES.SELECTMOVE:
-            return { ...state, selectedMove: payload }
+            return { ...handleSelectMove(state, payload) }
+        default:
+            return { ...state }
     }
 }
 
