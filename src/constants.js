@@ -125,7 +125,8 @@ export const STATETEMPLATE = {
         index: {}
     },
     chance: COLOR.WHITE,
-    chess: POSITION
+    chess: POSITION,
+    rotation: true
 }
 
 export const TYPES = {
