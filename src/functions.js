@@ -351,19 +351,22 @@ function deepCleanData(state) {
 
 // Functions to check path for best moves
 
-// Function to verify if it's opponent king or not
-function isOpponentKing(data, color) {
-    return (data.piece === NAMING.KING && data.color !== color)
-}
+
 // Function to check if king is safe or not
 function isKingSafe(data, color) {
-    if (data.color !== color && isOpponentKing(data, color)) {
+    if (data.color !== color && data.piece === NAMING.KING) {
         return { check: CONSTANTS.OPPONENTKING, payload: data }
     }
-    if (data.color !== color && !isOpponentKing(data, color)) {
-        return { check: false, payload: { ...data, isOpponentPath: CONSTANTS.OPPONENTPATH } }
+    if (data.color === color) {
+        return { check: CONSTANTS.FRIENDPIECE, payload: { ...data, isOpponentPath: true } }
     }
-    return { check: true, payload: data }
+    if (data.color !== color && data.color !== COLOR.DEFAULT && data.piece !== NAMING.KING) {
+        return { check: CONSTANTS.OPPONENTPIECE, payload: { ...data, isOpponentPath: true } }
+    }
+    if (data.color === COLOR.DEFAULT) {
+        return { check: CONSTANTS.OPPONENTPATH, payload: { ...data, isOpponentPath: true } }
+    }
+
 }
 // Pawn Assist Logic
 function verifyPawnPath({ rotation, chess }, { i, j }, piece, color) {
@@ -489,14 +492,14 @@ function verifyPawnPath({ rotation, chess }, { i, j }, piece, color) {
         }
         else if ((color === COLOR.BLACK && !rotation) || (color === COLOR.WHITE && rotation)) {
             if (verifyBoundary({ i: i - 1, j: j + 1 })) {
-                let data = isPossiblePath(chess[i - 1][j + 1], color)
+                let data = isKingSafe(chess[i - 1][j + 1], color)
                 if (data.check === CONSTANTS.OPPONENTKING) {
                     count++;
                 }
                 chess[i - 1][j + 1] = data.payload
             }
             if (verifyBoundary({ i: i - 1, j: j - 1 })) {
-                let data = isPossiblePath(chess[i - 1][j - 1], color)
+                let data = isKingSafe(chess[i - 1][j - 1], color)
                 if (data.check === CONSTANTS.OPPONENTKING) {
                     count++;
                 }
@@ -505,11 +508,241 @@ function verifyPawnPath({ rotation, chess }, { i, j }, piece, color) {
         }
     }
     if (count > 0) {
-        chess[i][j] = { ...chess[i][j], isDangerPiece: CONSTANTS.DANGERPIECE }
+        chess[i][j] = { ...chess[i][j], isDangerPiece: true }
     }
     return chess
 }
 
+// Function to verify rook path
+function verifyRookPath(chess, { i, j }, piece, color, move) {
+    if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
+        return true
+    }
+    if (move === MOVES.DEFAULTMOVE) {
+        if (verifyRookPath(chess, changeIndex({ i, j }, MOVES.TOP), piece, color, MOVES.TOP) === CONSTANTS.DANGERPATH ||
+            verifyRookPath(chess, changeIndex({ i, j }, MOVES.BOTTOM), piece, color, MOVES.BOTTOM) === CONSTANTS.DANGERPATH ||
+            verifyRookPath(chess, changeIndex({ i, j }, MOVES.LEFT), piece, color, MOVES.LEFT) === CONSTANTS.DANGERPATH ||
+            verifyRookPath(chess, changeIndex({ i, j }, MOVES.RIGHT), piece, color, MOVES.RIGHT) === CONSTANTS.DANGERPATH
+        ) {
+            chess[i][j] = { ...chess[i][j], isDangerPiece: CONSTANTS.DANGERPIECE }
+        }
+        return chess
+    }
+    let data = isKingSafe(chess[i][j], color)
+    switch (data.check) {
+        case CONSTANTS.OPPONENTKING:
+            chess[i][j] = { ...data.payload }
+            let index = changeIndex({ i, j }, move)
+            chess[index.i][index.j] = { ...chess[index.i][index.j], isOpponentPath: true }
+            return CONSTANTS.DANGERPATH
+        case CONSTANTS.OPPONENTPIECE:
+            if (verifyRookPath(chess, changeIndex({ i, j }, move), piece, color, move) === CONSTANTS.DANGERPATH) {
+                chess[i][j] = { ...data.payload, canMove: false }
+                return CONSTANTS.DANGERPATH
+            }
+        case CONSTANTS.FRIENDPIECE:
+            chess[i][j] = data.payload
+            return CONSTANTS.FRIENDPIECE
+        case CONSTANTS.OPPONENTPATH:
+            chess[i][j] = data.payload
+
+    }
+    switch (verifyRookPath(chess, changeIndex({ i, j }, move), piece, color, move)) {
+        case CONSTANTS.DANGERPATH:
+            chess[i][j] = { ...chess[i][j], isDangerPath: true }
+            return CONSTANTS.DANGERPATH
+        case CONSTANTS.FRIENDPIECE:
+            return CONSTANTS.FRIENDPIECE
+    }
+
+}
+
+// Function to verify queen path
+function verifyQueenPath(chess, { i, j }, piece, color, move) {
+    if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
+        return true
+    }
+    if (move === MOVES.DEFAULTMOVE) {
+        if (verifyQueenPath(chess, changeIndex({ i, j }, MOVES.TOP), piece, color, MOVES.TOP) === CONSTANTS.DANGERPATH ||
+            verifyQueenPath(chess, changeIndex({ i, j }, MOVES.BOTTOM), piece, color, MOVES.BOTTOM) === CONSTANTS.DANGERPATH ||
+            verifyQueenPath(chess, changeIndex({ i, j }, MOVES.LEFT), piece, color, MOVES.LEFT) === CONSTANTS.DANGERPATH ||
+            verifyQueenPath(chess, changeIndex({ i, j }, MOVES.RIGHT), piece, color, MOVES.RIGHT) === CONSTANTS.DANGERPATH ||
+            verifyQueenPath(chess, changeIndex({ i, j }, MOVES.TOPLEFT), piece, color, MOVES.TOPLEFT) === CONSTANTS.DANGERPATH ||
+            verifyQueenPath(chess, changeIndex({ i, j }, MOVES.TOPRIGHT), piece, color, MOVES.TOPRIGHT) === CONSTANTS.DANGERPATH ||
+            verifyQueenPath(chess, changeIndex({ i, j }, MOVES.BOTTOMLEFT), piece, color, MOVES.BOTTOMLEFT) === CONSTANTS.DANGERPATH ||
+            verifyQueenPath(chess, changeIndex({ i, j }, MOVES.BOTTOMRIGHT), piece, color, MOVES.BOTTOMRIGHT) === CONSTANTS.DANGERPATH
+        ) {
+            chess[i][j] = { ...chess[i][j], isDangerPiece: CONSTANTS.DANGERPIECE }
+        }
+        return chess
+    }
+    let data = isKingSafe(chess[i][j], color)
+    switch (data.check) {
+        case CONSTANTS.OPPONENTKING:
+            chess[i][j] = { ...data.payload }
+            let index = changeIndex({ i, j }, move)
+            chess[index.i][index.j] = { ...chess[index.i][index.j], isOpponentPath: true }
+            return CONSTANTS.DANGERPATH
+        case CONSTANTS.OPPONENTPIECE:
+            if (verifyQueenPath(chess, changeIndex({ i, j }, move), piece, color, move) === CONSTANTS.DANGERPATH) {
+                chess[i][j] = { ...data.payload, canMove: false }
+                return CONSTANTS.DANGERPATH
+            }
+        case CONSTANTS.FRIENDPIECE:
+            chess[i][j] = data.payload
+            return CONSTANTS.FRIENDPIECE
+        case CONSTANTS.OPPONENTPATH:
+            chess[i][j] = data.payload
+
+    }
+    switch (verifyQueenPath(chess, changeIndex({ i, j }, move), piece, color, move)) {
+        case CONSTANTS.DANGERPATH:
+            chess[i][j] = { ...chess[i][j], isDangerPath: true }
+            return CONSTANTS.DANGERPATH
+        case CONSTANTS.FRIENDPIECE:
+            return CONSTANTS.FRIENDPIECE
+    }
+
+}
+
+// Function to verify bishop path
+function verifyBishopPath(chess, { i, j }, piece, color, move) {
+    if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
+        return true
+    }
+    if (move === MOVES.DEFAULTMOVE) {
+        if (
+            verifyBishopPath(chess, changeIndex({ i, j }, MOVES.TOPLEFT), piece, color, MOVES.TOPLEFT) === CONSTANTS.DANGERPATH ||
+            verifyBishopPath(chess, changeIndex({ i, j }, MOVES.TOPRIGHT), piece, color, MOVES.TOPRIGHT) === CONSTANTS.DANGERPATH ||
+            verifyBishopPath(chess, changeIndex({ i, j }, MOVES.BOTTOMLEFT), piece, color, MOVES.BOTTOMLEFT) === CONSTANTS.DANGERPATH ||
+            verifyBishopPath(chess, changeIndex({ i, j }, MOVES.BOTTOMRIGHT), piece, color, MOVES.BOTTOMRIGHT) === CONSTANTS.DANGERPATH
+        ) {
+            chess[i][j] = { ...chess[i][j], isDangerPiece: CONSTANTS.DANGERPIECE }
+        }
+        return chess
+    }
+    let data = isKingSafe(chess[i][j], color)
+    switch (data.check) {
+        case CONSTANTS.OPPONENTKING:
+            chess[i][j] = { ...data.payload }
+            let index = changeIndex({ i, j }, move)
+            chess[index.i][index.j] = { ...chess[index.i][index.j], isOpponentPath: true }
+            return CONSTANTS.DANGERPATH
+        case CONSTANTS.OPPONENTPIECE:
+            if (verifyBishopPath(chess, changeIndex({ i, j }, move), piece, color, move) === CONSTANTS.DANGERPATH) {
+                chess[i][j] = { ...data.payload, canMove: false }
+                return CONSTANTS.DANGERPATH
+            }
+        case CONSTANTS.FRIENDPIECE:
+            chess[i][j] = data.payload
+            return CONSTANTS.FRIENDPIECE
+        case CONSTANTS.OPPONENTPATH:
+            chess[i][j] = data.payload
+
+    }
+    switch (verifyBishopPath(chess, changeIndex({ i, j }, move), piece, color, move)) {
+        case CONSTANTS.DANGERPATH:
+            chess[i][j] = { ...chess[i][j], isDangerPath: true }
+            return CONSTANTS.DANGERPATH
+        case CONSTANTS.FRIENDPIECE:
+            return CONSTANTS.FRIENDPIECE
+    }
+
+}
+
+// Function to verify Knight path
+function verifyKnightPath(chess, { i, j }, piece, color) {
+    let count = 0
+    if (verifyBoundary({ i: i - 2, j: j + 1 })) {
+        let data = isKingSafe(chess[i - 2][j + 1], color)
+        if (data.check === CONSTANTS.OPPONENTKING) {
+            count++;
+        }
+        chess[i - 2][j + 1] = data.payload
+    }
+    if (verifyBoundary({ i: i - 1, j: j + 2 })) {
+        let data = isKingSafe(chess[i - 1][j + 2], color)
+        if (data.check === CONSTANTS.OPPONENTKING) {
+            count++;
+        }
+        chess[i - 1][j + 2] = data.payload
+    }
+    if (verifyBoundary({ i: i - 2, j: j - 1 })) {
+        let data = isKingSafe(chess[i - 2][j - 1], color)
+        if (data.check === CONSTANTS.OPPONENTKING) {
+            count++;
+        }
+        chess[i - 2][j - 1] = data.payload
+    }
+    if (verifyBoundary({ i: i - 1, j: j - 2 })) {
+        let data = isKingSafe(chess[i - 1][j - 2], color)
+        if (data.check === CONSTANTS.OPPONENTKING) {
+            count++;
+        }
+        chess[i - 1][j - 2] = data.payload
+    }
+    if (verifyBoundary({ i: i + 2, j: j + 1 })) {
+        let data = isKingSafe(chess[i + 2][j + 1], color)
+        if (data.check === CONSTANTS.OPPONENTKING) {
+            count++;
+        }
+        chess[i + 2][j + 1] = data.payload
+    }
+    if (verifyBoundary({ i: i + 1, j: j + 2 })) {
+        let data = isKingSafe(chess[i + 1][j + 2], color)
+        if (data.check === CONSTANTS.OPPONENTKING) {
+            count++;
+        }
+        chess[i + 1][j + 2] = data.payload
+    }
+    if (verifyBoundary({ i: i + 2, j: j - 1 })) {
+        let data = isKingSafe(chess[i + 2][j - 1], color)
+        if (data.check === CONSTANTS.OPPONENTKING) {
+            count++;
+        }
+        chess[i + 2][j - 1] = data.payload
+    }
+    if (verifyBoundary({ i: i + 1, j: j - 2 })) {
+        let data = isKingSafe(chess[i + 1][j - 2], color)
+        if (data.check === CONSTANTS.OPPONENTKING) {
+            count++;
+        }
+        chess[i + 1][j - 2] = data.payload
+    }
+    if (count > 0) {
+        chess[i][j] = { ...chess[i][j], isDangerPiece: true }
+    }
+    return chess
+}
+
+// Function to verify king move
+function verifyKingPath(chess, { i, j }, piece, color) {
+    if (verifyBoundary({ i: i - 1, j })) {
+        chess[i - 1][j] = isKingSafe(chess[i - 1][j], color).payload
+    }
+    if (verifyBoundary({ i: i + 1, j })) {
+        chess[i + 1][j] = isKingSafe(chess[i + 1][j], color).payload
+    }
+    if (verifyBoundary({ i, j: j + 1 })) {
+        chess[i][j + 1] = isKingSafe(chess[i][j + 1], color).payload
+    }
+    if (verifyBoundary({ i, j: j - 1 })) {
+        chess[i][j - 1] = isKingSafe(chess[i][j - 1], color).payload
+    }
+    if (verifyBoundary({ i: i - 1, j: j + 1 })) {
+        chess[i - 1][j + 1] = isKingSafe(chess[i - 1][j + 1], color).payload
+    }
+    if (verifyBoundary({ i: i - 1, j: j - 1 })) {
+        chess[i - 1][j - 1] = isKingSafe(chess[i - 1][j - 1], color).payload
+    }
+    if (verifyBoundary({ i: i + 1, j: j - 1 })) {
+        chess[i + 1][j - 1] = isKingSafe(chess[i + 1][j - 1], color).payload
+    }
+    if (verifyBoundary({ i: i + 1, j: j + 1 })) {
+        chess[i + 1][j + 1] = isKingSafe(chess[i + 1][j + 1], color).payload
+    }
+    return chess
+}
 function verifyPaths({ chess, rotation, selectedPiece, chance }) {
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
@@ -520,19 +753,19 @@ function verifyPaths({ chess, rotation, selectedPiece, chance }) {
                         chess = verifyPawnPath({ rotation, chess }, { i, j }, chess[i][j], color)
                         break
                     case NAMING.ROOK:
-                        chess = handleRookAssist(chess, { i, j }, chess[i][j], color, MOVES.DEFAULTMOVE)
+                        chess = verifyRookPath(chess, { i, j }, chess[i][j], color, MOVES.DEFAULTMOVE)
                         break
                     case NAMING.KNIGHT:
-                        chess = handleKnightAssist(chess, { i, j }, chess[i][j], color)
+                        chess = verifyKnightPath(chess, { i, j }, chess[i][j], color)
                         break
                     case NAMING.BISHOP:
-                        chess = handleBishopAssist(chess, { i, j }, chess[i][j], color, MOVES.DEFAULTMOVE)
+                        chess = verifyBishopPath(chess, { i, j }, chess[i][j], color, MOVES.DEFAULTMOVE)
                         break
                     case NAMING.QUEEN:
-                        chess = handleQueenAssist(chess, { i, j }, chess[i][j], color, MOVES.DEFAULTMOVE)
+                        chess = verifyQueenPath(chess, { i, j }, chess[i][j], color, MOVES.DEFAULTMOVE)
                         break
                     case NAMING.KING:
-                        chess = handleKingAssist(chess, { i, j }, chess[i][j], color)
+                        chess = verifyKingPath(chess, { i, j }, chess[i][j], color)
                         break
                     default:
                         break
