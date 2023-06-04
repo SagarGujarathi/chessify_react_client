@@ -31,8 +31,11 @@ export const CONSTANTS = {
     GREEN: 'rgb(63, 193, 201)',
     DANGERCOLOR: 'rgb(244, 132, 132)',
     PATHIMAGE: circle,
-    OPPONENTPATH: 'opponentpath',
-    DANGERPATH: 'dangerpath'
+    OPPONENTPATH: true,
+    DANGERPATH: true,
+    DANGERPIECE: true,
+    DONTMOVE: true,
+    OPPONENTKING: 'opponentking'
 }
 export const PIECES = { blackpawn, whitepawn, blackrook, whiterook, blackknight, whiteknight, blackqueen, whitequeen, blackking, whiteking, blackbishop, whitebishop, default: '' }
 export const POSITION =
