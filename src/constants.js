@@ -99,11 +99,11 @@ export const POSITION =
 
         ],
         [
-            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
-            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
             { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
-            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
-            { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' },
+            { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
+            { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
+            { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
+            { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
             { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
             { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn },
             { piece: NAMING.PAWN, color: COLOR.WHITE, image: whitepawn }

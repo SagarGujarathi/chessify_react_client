@@ -13,8 +13,16 @@ function canMove(color1, color2) {
     return true
 }
 // Function to check if present block has enemy or not for pawn
-function canPawnove(color) {
+function canPawnMove(color) {
     if (color === COLOR.DEFAULT) {
+        return true
+    }
+    return false
+}
+// Function to check if pawn can attack or not
+function canPawnAttack(color1, color2) {
+    console.log(color2, color1)
+    if (color1 !== COLOR.DEFAULT && color1 !== color2) {
         return true
     }
     return false
@@ -68,55 +76,103 @@ function handleRookAssist(chess, { i, j }, piece, color, move) {
 function handlePawnAssist({ rotation, chess }, { i, j }, piece, color) {
     if (i === 1) {
         if ((color === COLOR.BLACK && rotation) || (color === COLOR.WHITE && !rotation)) {
-            if (verifyBoundary({ i: i + 1, j }) && canMove(chess[i + 1][j].color, color)) {
+            if (verifyBoundary({ i: i + 1, j }) && canPawnMove(chess[i + 1][j].color, color)) {
                 let data = isPossiblePath(chess[i + 1][j], color)
                 chess[i + 1][j] = data.payload
-                if (data.check && verifyBoundary({ i: i + 2, j }) && canMove(chess[i + 2][j].color, color)) {
+                if (data.check && verifyBoundary({ i: i + 2, j }) && canPawnMove(chess[i + 2][j].color, color)) {
                     chess[i + 2][j] = isPossiblePath(chess[i + 2][j], color).payload
                 }
             }
+            if (verifyBoundary({ i: i + 1, j: j + 1 }) && canPawnAttack(chess[i + 1][j + 1].color, color)) {
+                chess[i + 1][j + 1] = isPossiblePath(chess[i + 1][j + 1], color).payload
+            }
+            if (verifyBoundary({ i: i + 1, j: j - 1 }) && canPawnAttack(chess[i + 1][j - 1].color, color)) {
+                chess[i + 1][j - 1] = isPossiblePath(chess[i + 1][j - 1], color).payload
+            }
         }
         else if ((color === COLOR.BLACK && !rotation) || (color === COLOR.WHITE && rotation)) {
-            if (verifyBoundary({ i: i - 1, j }) && canMove(chess[i - 1][j].color)) {
+            if (verifyBoundary({ i: i - 1, j }) && canPawnMove(chess[i - 1][j].color)) {
                 chess[i - 1][j] = isPossiblePath(chess[i - 1][j], color).payload
+            }
+            if (verifyBoundary({ i: i - 1, j: j + 1 }) && canPawnAttack(chess[i - 1][j + 1].color, color)) {
+                chess[i - 1][j + 1] = isPossiblePath(chess[i - 1][j + 1], color).payload
+            }
+            if (verifyBoundary({ i: i - 1, j: j - 1 }) && canPawnAttack(chess[i - 1][j - 1].color, color)) {
+                chess[i - 1][j - 1] = isPossiblePath(chess[i - 1][j - 1], color).payload
             }
         }
     }
     else if (i === 6) {
         if ((color === COLOR.BLACK && rotation) || (color === COLOR.WHITE && !rotation)) {
-            if (verifyBoundary({ i: i + 1, j }) && canPawnove(chess[i + 1][j].color)) {
+            if (verifyBoundary({ i: i + 1, j }) && canPawnMove(chess[i + 1][j].color)) {
                 chess[i + 1][j] = isPossiblePath(chess[i + 1][j], color).payload
+            }
+            if (verifyBoundary({ i: i + 1, j: j + 1 }) && canPawnAttack(chess[i + 1][j + 1].color, color)) {
+                chess[i + 1][j + 1] = isPossiblePath(chess[i + 1][j + 1], color).payload
+            }
+            if (verifyBoundary({ i: i + 1, j: j - 1 }) && canPawnAttack(chess[i + 1][j - 1].color, color)) {
+                chess[i + 1][j - 1] = isPossiblePath(chess[i + 1][j - 1], color).payload
             }
         }
         else if ((color === COLOR.BLACK && !rotation) || (color === COLOR.WHITE && rotation)) {
-            if (verifyBoundary({ i: i - 1, j }) && canPawnove(chess[i - 1][j].color)) {
+            if (verifyBoundary({ i: i - 1, j }) && canPawnMove(chess[i - 1][j].color)) {
                 let data = isPossiblePath(chess[i - 1][j], color)
                 chess[i - 1][j] = data.payload
-                if (data.check && verifyBoundary({ i: i - 2, j }) && canPawnove(chess[i - 2][j].color)) {
+                if (data.check && verifyBoundary({ i: i - 2, j }) && canPawnMove(chess[i - 2][j].color)) {
                     chess[i - 2][j] = isPossiblePath(chess[i - 2][j], color).payload
+                }
+                if (verifyBoundary({ i: i - 1, j: j + 1 }) && canPawnAttack(chess[i - 1][j + 1].color, color)) {
+                    chess[i - 1][j + 1] = isPossiblePath(chess[i - 1][j + 1], color).payload
+                }
+                if (verifyBoundary({ i: i - 1, j: j - 1 }) && canPawnAttack(chess[i - 1][j - 1].color, color)) {
+                    chess[i - 1][j - 1] = isPossiblePath(chess[i - 1][j - 1], color).payload
                 }
             }
         }
     }
     else {
         if ((color === COLOR.BLACK && rotation) || (color === COLOR.WHITE && !rotation)) {
-            if (verifyBoundary({ i: i + 1, j }) && canPawnove(chess[i + 1][j].color)) {
+            if (verifyBoundary({ i: i + 1, j }) && canPawnMove(chess[i + 1][j].color)) {
                 chess[i + 1][j] = isPossiblePath(chess[i + 1][j], color).payload
+            }
+            if (verifyBoundary({ i: i + 1, j: j + 1 }) && canPawnAttack(chess[i + 1][j + 1].color, color)) {
+                chess[i + 1][j + 1] = isPossiblePath(chess[i + 1][j + 1], color).payload
+            }
+            if (verifyBoundary({ i: i + 1, j: j - 1 }) && canPawnAttack(chess[i + 1][j - 1].color, color)) {
+                chess[i + 1][j - 1] = isPossiblePath(chess[i + 1][j - 1], color).payload
             }
         }
         else if ((color === COLOR.BLACK && !rotation) || (color === COLOR.WHITE && rotation)) {
-            if (verifyBoundary({ i: i - 1, j }) && canPawnove(chess[i - 1][j].color)) {
+            if (verifyBoundary({ i: i - 1, j }) && canPawnMove(chess[i - 1][j].color)) {
                 chess[i - 1][j] = isPossiblePath(chess[i - 1][j], color).payload
+            }
+            if (verifyBoundary({ i: i - 1, j: j + 1 }) && canPawnAttack(chess[i - 1][j + 1].color, color)) {
+                chess[i - 1][j + 1] = isPossiblePath(chess[i - 1][j + 1], color).payload
+            }
+            if (verifyBoundary({ i: i - 1, j: j - 1 }) && canPawnAttack(chess[i - 1][j - 1].color, color)) {
+                chess[i - 1][j - 1] = isPossiblePath(chess[i - 1][j - 1], color).payload
             }
         }
         else if ((color === COLOR.BLACK && rotation) || (color === COLOR.WHITE && !rotation)) {
-            if (verifyBoundary({ i: i + 1, j }) && canPawnove(chess[i + 1][j].color)) {
+            if (verifyBoundary({ i: i + 1, j }) && canPawnMove(chess[i + 1][j].color)) {
                 chess[i + 1][j] = isPossiblePath(chess[i + 1][j], color).payload
+            }
+            if (verifyBoundary({ i: i + 1, j: j + 1 }) && canPawnAttack(chess[i + 1][j + 1].color, color)) {
+                chess[i + 1][j + 1] = isPossiblePath(chess[i + 1][j + 1], color).payload
+            }
+            if (verifyBoundary({ i: i + 1, j: j - 1 }) && canPawnAttack(chess[i + 1][j - 1].color, color)) {
+                chess[i + 1][j - 1] = isPossiblePath(chess[i + 1][j - 1], color).payload
             }
         }
         else if ((color === COLOR.BLACK && !rotation) || (color === COLOR.WHITE && rotation)) {
-            if (verifyBoundary({ i: i - 1, j }) && canPawnove(chess[i - 1][j].color)) {
+            if (verifyBoundary({ i: i - 1, j }) && canPawnMove(chess[i - 1][j].color)) {
                 chess[i - 1][j] = isPossiblePath(chess[i - 1][j], color).payload
+            }
+            if (verifyBoundary({ i: i - 1, j: j + 1 }) && canPawnAttack(chess[i - 1][j + 1].color, color)) {
+                chess[i - 1][j + 1] = isPossiblePath(chess[i - 1][j + 1], color).payload
+            }
+            if (verifyBoundary({ i: i - 1, j: j - 1 }) && canPawnAttack(chess[i - 1][j - 1].color, color)) {
+                chess[i - 1][j - 1] = isPossiblePath(chess[i - 1][j - 1], color).payload
             }
         }
     }
