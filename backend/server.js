@@ -1,16 +1,30 @@
-const socket = require('socket.io')
-const io = socket(3000, { cors: { origin: '*' } })
 
-
-//  On new connection
-io.on('connection', (socket) => {
-    let id = socket.id
+const io = require('socket.io')(3000, { cors: { origin: '*' } });
+function getOnlinePlayers() {
     let data = []
     io.sockets.sockets.forEach(s => data.push(s.id))
-    io.emit('players', { players: data })
-})
-// To initialize game
+    console.log('Users : ', data)
+    return data
+}
+io.on('connection', (socket) => {
+    console.log('A user connected id : ', socket.id)
+    io.sockets.emit('players', getOnlinePlayers())
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+    });
 
-io.on('in', (sessionId1) => {
-    console.log(sessionId1)
-})
+    socket.on('join request', (room, userid) => {
+        console.log(`Sent request to the user : ${userid} for joining`)
+        socket.to(userid).emit('join request', { room })
+    });
+
+    socket.on('accept request', (room, userid) => {
+        socket.join(room)
+        socket.to(room).emit('success request', { message: `Player id : ${userid} accepted your request! Start the game` })
+    })
+
+    socket.on('reject request', (room, userid) => {
+        socket.to(room).emit('reject request', { message: `Player id : ${userid} rejected your request` })
+    })
+
+});

@@ -5,26 +5,30 @@ import { createContext, useEffect, useReducer, useState } from 'react'
 import { STATETEMPLATE } from './constants'
 import { handleReducer } from './functions'
 import { io } from 'socket.io-client'
-const socket = io.connect('http://localhost:3000/')
+const socket = io('http://localhost:3000')
 export const chessContext = createContext()
 function App() {
   const [players, setPlayers] = useState([])
   const [state, dispatch] = useReducer(handleReducer, STATETEMPLATE)
 
-  function handlePlayersData(data) {
-    setPlayers(data.filter(s => s != socket.id))
-  }
-  function initGame(player) {
-    console.log('meow')
-    socket.emit('in', { player })
-  }
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('connected to id: ', socket.id)
-    })
-    socket.on('players', data => handlePlayersData(data.players))
-  }, [socket])
+    function onConnect() {
+      console.log(`Socket connected! id : ${socket.id}`)
+    }
+    function onPlayers(data) {
+      setPlayers(data.filter(player => player != socket.id))
+    }
+    socket.on('connect', onConnect)
+    socket.on('players', onPlayers)
 
+    return () => {
+      socket.on('connect', onConnect)
+      socket.on('players', onPlayers)
+    }
+  }, [])
+  function initGame(player) {
+    socket.emit('start game', player)
+  }
   return (
     <>
       <chessContext.Provider value={{ chess: state, dispatch }}>
@@ -39,7 +43,7 @@ function App() {
           <div className="display-container">
             {
               players.map(player => {
-                return <button onClick={() => { initGame(player) }} key={`${player}`} className='temp'>Connect: {player}</button>
+                return <button onClick={() => initGame(player)} key={`${player}`} className='temp'>Connect: {player}</button>
               })
             }
           </div>
