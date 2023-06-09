@@ -1,0 +1,4 @@
+.online-player-container {
+    display: flex;
+    flex-direction: column;
+}

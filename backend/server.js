@@ -1,30 +1,25 @@
+const io = require('socket.io')(3000, { cors: { origin: '*' } })
 
-const io = require('socket.io')(3000, { cors: { origin: '*' } });
-function getOnlinePlayers() {
+function getPlayersData() {
     let data = []
-    io.sockets.sockets.forEach(s => data.push(s.id))
-    console.log('Users : ', data)
+    io.sockets.sockets.forEach(s => {
+        if (s.handshake.query.isAvailable) {
+            data.push({ playerName: s.handshake.query.name, playerRoom: s.handshake.query.id, id: s.id })
+        }
+    })
     return data
 }
 io.on('connection', (socket) => {
-    console.log('A user connected id : ', socket.id)
-    io.sockets.emit('players', getOnlinePlayers())
+    console.log(`New Player Connected!\nName: ${socket.handshake.query.name}\nID: ${socket.handshake.query.id}\nsAvailable: ${socket.handshake.query.isAvailable}`)
+
+    io.sockets.emit('OnlinePlayers', getPlayersData())
+
     socket.on('disconnect', () => {
-        console.log('A user disconnected');
-    });
-
-    socket.on('join request', (room, userid) => {
-        console.log(`Sent request to the user : ${userid} for joining`)
-        socket.to(userid).emit('join request', { room })
-    });
-
-    socket.on('accept request', (room, userid) => {
-        socket.join(room)
-        socket.to(room).emit('success request', { message: `Player id : ${userid} accepted your request! Start the game` })
+        console.log(`Player Disconnected!\nName: ${socket.handshake.query.name}\nID: ${socket.handshake.query.id}\nsAvailable: ${socket.handshake.query.isAvailable}`)
+        io.sockets.emit('OnlinePlayers', getPlayersData())
     })
 
-    socket.on('reject request', (room, userid) => {
-        socket.to(room).emit('reject request', { message: `Player id : ${userid} rejected your request` })
+    socket.on('RequestPlay', (data) => {
+        io.to(data.id).emit('RequestPlay', data)
     })
-
-});
+})
