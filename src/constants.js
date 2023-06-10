@@ -129,14 +129,26 @@ export const STATETEMPLATE = {
         piece: '',
         index: {}
     },
-    chance: COLOR.WHITE,
+    chance: '',
     chess: POSITION,
     rotation: true
 }
 
 export const TYPES = {
     SELECTPIECE: 'selectpiece',
-    SELECTMOVE: 'selectmove'
+    SELECTMOVE: 'selectmove',
+    CHANGECHANCE: 'changechance',
+    UPDATECHESSMOVE: 'updatechessmove',
+    SETMYNAME: 'setmyname',
+    SETMYPHOTO: 'setmyphoto',
+    LOGIN: 'login',
+    OPPONENTDETAILS: 'opponentdetails',
+    SETGAMEROOMID: 'setgameroomid',
+    SETSOCKETID: 'setsocketid',
+    SETMYCOLOR: 'setmycolor',
+    SETINGAME: 'setingame',
+    UPDATEBOARD: 'updateboard',
+    VERIFYPATHS: 'verifypaths'
 }
 
 export const MOVES = {

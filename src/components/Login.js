@@ -1,26 +1,24 @@
-import { useState } from 'react'
 import '../css/Login.css'
-function Login({ callback }) {
-    const [name, setName] = useState('')
+import { SocketContext } from '../contexts/SocketProvider'
+import { useContext } from 'react'
+import { TYPES } from '../constants'
+function Login() {
+    const { gameDispatch, gameState } = useContext(SocketContext)
+
     return (
         <div className="login-container">
             <span className="login-heading">Login</span>
-            <label htmlFor="name" className='login-input-label'>
-                <input
-                    type="text"
-                    className='login-input'
-                    name='name'
-                    placeholder='Enter your Name...'
-                    onChange={(e) => setName(e.target.value)}
-                    value={name}
-                />
-            </label>
+            <input
+                type="text"
+                className='login-input'
+                name='name'
+                placeholder='Enter your Name...'
+                onChange={(e) => gameDispatch({ type: TYPES.SETMYNAME, payload: e.target.value })}
+                value={gameState.myDetails.name}
+            />
             <button
                 className="login-button"
-                onClick={() => {
-                    if (name == '') return
-                    callback(name)
-                }}
+                onClick={() => gameDispatch({ type: TYPES.LOGIN, payload: true })}
             >
                 Submit</button>
         </div >

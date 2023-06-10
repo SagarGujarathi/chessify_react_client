@@ -27,6 +27,7 @@
 .right-main-container {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     background-color: #222831;
     padding: .5rem;
     gap: 1rem;

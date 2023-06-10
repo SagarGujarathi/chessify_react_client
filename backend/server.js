@@ -3,23 +3,39 @@ const io = require('socket.io')(3000, { cors: { origin: '*' } })
 function getPlayersData() {
     let data = []
     io.sockets.sockets.forEach(s => {
-        if (s.handshake.query.isAvailable) {
-            data.push({ playerName: s.handshake.query.name, playerRoom: s.handshake.query.id, id: s.id })
-        }
+        data.push({ name: s.handshake.query.name, roomId: s.handshake.query.roomId, socketId: s.id, profilePic: s.handshake.query.profilePic })
     })
     return data
 }
 io.on('connection', (socket) => {
-    console.log(`New Player Connected!\nName: ${socket.handshake.query.name}\nID: ${socket.handshake.query.id}\nsAvailable: ${socket.handshake.query.isAvailable}`)
-
+    console.log(`New player joined! Name: ${socket.handshake.query.name}`)
     io.sockets.emit('OnlinePlayers', getPlayersData())
-
     socket.on('disconnect', () => {
-        console.log(`Player Disconnected!\nName: ${socket.handshake.query.name}\nID: ${socket.handshake.query.id}\nsAvailable: ${socket.handshake.query.isAvailable}`)
+        console.log(`New player disconnected! Name: ${socket.handshake.query.name}`)
         io.sockets.emit('OnlinePlayers', getPlayersData())
     })
 
     socket.on('RequestPlay', (data) => {
-        io.to(data.id).emit('RequestPlay', data)
+        io.to(data.opponentDetails.socketId).emit('RequestPlay', data)
+        socket.join(data.playerDetails.roomId)
+    })
+    socket.on('AcceptRequest', (data) => {
+        socket.join(data.playerDetails.roomId)
+        const initData = {
+            gameRoomId: data.playerDetails.roomId,
+            black: {
+                name: data.playerDetails.name,
+                socketId: data.playerDetails.socketId
+            },
+            white: {
+                name: data.opponentDetails.name,
+                socketId: data.opponentDetails.socketId
+            }
+        }
+        console.log(initData)
+        io.to(data.playerDetails.roomId).emit('InitGame', initData)
+    })
+    socket.on('UserMove', (data) => {
+        io.to(data.opponentDetails.socketId).emit('UserMove', data.chess)
     })
 })

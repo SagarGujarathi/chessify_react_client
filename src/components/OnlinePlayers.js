@@ -3,12 +3,11 @@ import { SocketContext } from '../contexts/SocketProvider'
 import Player from './Player.js'
 import '../css/OnlinePlayers.css'
 function OnlinePlayers() {
-    const socket = useContext(SocketContext)
+    const { socket } = useContext(SocketContext)
     const [players, setPlayers] = useState([])
     useEffect(() => {
         if (socket == null) return
-        socket.on('OnlinePlayers', (data) => setPlayers(data.filter(s => s.id !== socket.id)))
-        console.log(players)
+        socket.on('OnlinePlayers', (data) => setPlayers(data.filter(s => s.socketId !== socket.id)))
         return () => socket.off('OnlinePlayers', (data) => setPlayers(data.filter(s => s.id !== socket.id)))
     }, [socket])
     return (

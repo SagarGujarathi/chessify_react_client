@@ -782,8 +782,8 @@ function handleSelectMove(state, payload) {
     if (state.selectedPiece.index.i !== undefined && state.selectedPiece.index.j !== undefined) {
         state.chess[payload.index.i][payload.index.j] = state.chess[state.selectedPiece.index.i][state.selectedPiece.index.j]
         state.chess[state.selectedPiece.index.i][state.selectedPiece.index.j] = { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' }
-        state.chance = (COLOR.WHITE === state.chance) ? COLOR.BLACK : COLOR.WHITE
-        return verifyPaths(deepCleanData(state))
+        state.chance = ''
+        const data = deepCleanData(state)
     }
     return state
 }
@@ -799,10 +799,33 @@ export function handleReducer(state, { type, payload }) {
             return { ...state }
         case TYPES.SELECTMOVE:
             chessSound.play()
-            return { ...handleSelectMove(state, payload) }
+            let data = { ...handleSelectMove(state, payload) }
+            payload.socket.emit('UserMove', { opponentDetails: payload.opponentDetails, chess: data.chess })
+        case TYPES.VERIFYPATHS:
+            return { ...verifyPaths(state) }
+        case TYPES.CHANGECHANCE:
+            return { ...state, chance: payload }
+        case TYPES.UPDATEBOARD:
+            return { ...state, chess: payload }
 
         default:
             return { ...state }
     }
 }
 
+export function handleResize(chessContainerRef) {
+    chessContainerRef.current.style.gridTemplateColumns = `repeat(8, ${5}px)`
+    chessContainerRef.current.style.gridTemplateRows = `repeat(8, ${5}px)`
+    const height = Number(getComputedStyle(chessContainerRef.current).height.replace('px', ''))
+    const rem = Number(getComputedStyle(document.documentElement).fontSize.replace('px', ''))
+    if (window.outerWidth - 2 * rem <= 1200) {
+        const minimum = Math.min(window.outerHeight - 3 * rem, window.outerWidth - 2 * rem)
+        chessContainerRef.current.style.gridTemplateColumns = `repeat(8, ${minimum / 8}px)`
+        chessContainerRef.current.style.gridTemplateRows = `repeat(8, ${minimum / 8}px)`
+    }
+    else {
+        chessContainerRef.current.style.gridTemplateColumns = `repeat(8, ${height / 8}px)`
+        chessContainerRef.current.style.gridTemplateRows = `repeat(8, ${height / 8}px)`
+    }
+
+}
