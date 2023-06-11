@@ -41,90 +41,90 @@ function changeIndex({ i, j }, move) {
 }
 
 // function to check if path to move is possible
-function isPossiblePath(element, color) {
-    if (element.piece === NAMING.DEFAULT) {
+function isPossiblePath(element, color, check) {
+    if ((element.piece === NAMING.DEFAULT && !check && element.canMove !== false) || (check && element.isDangerPath === true)) {
         return { check: true, payload: { ...element, image: CONSTANTS.PATHIMAGE } }
     }
-    if (element.color !== color && element.color !== COLOR.DEFAULT) {
+    if ((element.color !== color && element.color !== COLOR.DEFAULT && !check && element.canMove !== false) || (check && element.isDangerPath === CONSTANTS.DANGERPIECE)) {
         return { check: false, payload: { ...element, backgroundColor: CONSTANTS.DANGERCOLOR } }
     }
-    return element
+    return { check: true, payload: { ...element } }
 }
 
 // Rook Assist Logic
-function handleRookAssist(chess, { i, j }, piece, color, move) {
+function handleRookAssist(chess, { i, j }, piece, color, check, move) {
     if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
         return chess
     }
     if (move === MOVES.DEFAULTMOVE) {
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOP), piece, color, MOVES.TOP)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOM), piece, color, MOVES.BOTTOM)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.LEFT), piece, color, MOVES.LEFT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.RIGHT), piece, color, MOVES.RIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOP), piece, color, check, MOVES.TOP)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOM), piece, color, check, MOVES.BOTTOM)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.LEFT), piece, color, check, MOVES.LEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.RIGHT), piece, color, check, MOVES.RIGHT)
         return chess
     }
-    let data = isPossiblePath(chess[i][j], color)
+    let data = isPossiblePath(chess[i][j], color, check)
     chess[i][j] = data.payload
     if (!data.check) {
         return
     }
-    handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, move)
+    handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, check, move)
 }
 
 // Pawn Assist Logic
-function handlePawnAssist({ rotation, chess }, { i, j }, piece, color) {
+function handlePawnAssist({ rotation, chess, check }, { i, j }, piece, color) {
     if (i === 1) {
         if ((color === COLOR.BLACK && rotation) || (color === COLOR.WHITE && !rotation)) {
             if (verifyBoundary({ i: i + 1, j }) && canPawnMove(chess[i + 1][j].color, color)) {
                 let data = isPossiblePath(chess[i + 1][j], color)
                 chess[i + 1][j] = data.payload
                 if (data.check && verifyBoundary({ i: i + 2, j }) && canPawnMove(chess[i + 2][j].color, color)) {
-                    chess[i + 2][j] = isPossiblePath(chess[i + 2][j], color).payload
+                    chess[i + 2][j] = isPossiblePath(chess[i + 2][j], color, check).payload
                 }
             }
             if (verifyBoundary({ i: i + 1, j: j + 1 }) && canPawnAttack(chess[i + 1][j + 1].color, color)) {
-                chess[i + 1][j + 1] = isPossiblePath(chess[i + 1][j + 1], color).payload
+                chess[i + 1][j + 1] = isPossiblePath(chess[i + 1][j + 1], color, check).payload
             }
             if (verifyBoundary({ i: i + 1, j: j - 1 }) && canPawnAttack(chess[i + 1][j - 1].color, color)) {
-                chess[i + 1][j - 1] = isPossiblePath(chess[i + 1][j - 1], color).payload
+                chess[i + 1][j - 1] = isPossiblePath(chess[i + 1][j - 1], color, check).payload
             }
         }
         else if ((color === COLOR.BLACK && !rotation) || (color === COLOR.WHITE && rotation)) {
             if (verifyBoundary({ i: i - 1, j }) && canPawnMove(chess[i - 1][j].color)) {
-                chess[i - 1][j] = isPossiblePath(chess[i - 1][j], color).payload
+                chess[i - 1][j] = isPossiblePath(chess[i - 1][j], color, check).payload
             }
             if (verifyBoundary({ i: i - 1, j: j + 1 }) && canPawnAttack(chess[i - 1][j + 1].color, color)) {
-                chess[i - 1][j + 1] = isPossiblePath(chess[i - 1][j + 1], color).payload
+                chess[i - 1][j + 1] = isPossiblePath(chess[i - 1][j + 1], color, check).payload
             }
             if (verifyBoundary({ i: i - 1, j: j - 1 }) && canPawnAttack(chess[i - 1][j - 1].color, color)) {
-                chess[i - 1][j - 1] = isPossiblePath(chess[i - 1][j - 1], color).payload
+                chess[i - 1][j - 1] = isPossiblePath(chess[i - 1][j - 1], color, check).payload
             }
         }
     }
     else if (i === 6) {
         if ((color === COLOR.BLACK && rotation) || (color === COLOR.WHITE && !rotation)) {
             if (verifyBoundary({ i: i + 1, j }) && canPawnMove(chess[i + 1][j].color)) {
-                chess[i + 1][j] = isPossiblePath(chess[i + 1][j], color).payload
+                chess[i + 1][j] = isPossiblePath(chess[i + 1][j], color, check).payload
             }
             if (verifyBoundary({ i: i + 1, j: j + 1 }) && canPawnAttack(chess[i + 1][j + 1].color, color)) {
-                chess[i + 1][j + 1] = isPossiblePath(chess[i + 1][j + 1], color).payload
+                chess[i + 1][j + 1] = isPossiblePath(chess[i + 1][j + 1], color, check).payload
             }
             if (verifyBoundary({ i: i + 1, j: j - 1 }) && canPawnAttack(chess[i + 1][j - 1].color, color)) {
-                chess[i + 1][j - 1] = isPossiblePath(chess[i + 1][j - 1], color).payload
+                chess[i + 1][j - 1] = isPossiblePath(chess[i + 1][j - 1], color, check).payload
             }
         }
         else if ((color === COLOR.BLACK && !rotation) || (color === COLOR.WHITE && rotation)) {
             if (verifyBoundary({ i: i - 1, j }) && canPawnMove(chess[i - 1][j].color)) {
-                let data = isPossiblePath(chess[i - 1][j], color)
+                let data = isPossiblePath(chess[i - 1][j], color, check)
                 chess[i - 1][j] = data.payload
                 if (data.check && verifyBoundary({ i: i - 2, j }) && canPawnMove(chess[i - 2][j].color)) {
-                    chess[i - 2][j] = isPossiblePath(chess[i - 2][j], color).payload
+                    chess[i - 2][j] = isPossiblePath(chess[i - 2][j], color, check).payload
                 }
                 if (verifyBoundary({ i: i - 1, j: j + 1 }) && canPawnAttack(chess[i - 1][j + 1].color, color)) {
-                    chess[i - 1][j + 1] = isPossiblePath(chess[i - 1][j + 1], color).payload
+                    chess[i - 1][j + 1] = isPossiblePath(chess[i - 1][j + 1], color, check).payload
                 }
                 if (verifyBoundary({ i: i - 1, j: j - 1 }) && canPawnAttack(chess[i - 1][j - 1].color, color)) {
-                    chess[i - 1][j - 1] = isPossiblePath(chess[i - 1][j - 1], color).payload
+                    chess[i - 1][j - 1] = isPossiblePath(chess[i - 1][j - 1], color, check).payload
                 }
             }
         }
@@ -179,76 +179,76 @@ function handlePawnAssist({ rotation, chess }, { i, j }, piece, color) {
 }
 
 // Knight Assist Logic
-function handleKnightAssist(chess, { i, j }, piece, color) {
+function handleKnightAssist(chess, { i, j }, piece, color, check) {
     if (verifyBoundary({ i: i - 2, j: j + 1 }) && canMove(chess[i - 2][j + 1].color, color)) {
-        chess[i - 2][j + 1] = isPossiblePath(chess[i - 2][j + 1], color).payload
+        chess[i - 2][j + 1] = isPossiblePath(chess[i - 2][j + 1], color, check).payload
     }
     if (verifyBoundary({ i: i - 1, j: j + 2 }) && canMove(chess[i - 1][j + 2].color, color)) {
-        chess[i - 1][j + 2] = isPossiblePath(chess[i - 1][j + 2], color).payload
+        chess[i - 1][j + 2] = isPossiblePath(chess[i - 1][j + 2], color, check).payload
     }
     if (verifyBoundary({ i: i - 2, j: j - 1 }) && canMove(chess[i - 2][j - 1].color, color)) {
-        chess[i - 2][j - 1] = isPossiblePath(chess[i - 2][j - 1], color).payload
+        chess[i - 2][j - 1] = isPossiblePath(chess[i - 2][j - 1], color, check).payload
     }
     if (verifyBoundary({ i: i - 1, j: j - 2 }) && canMove(chess[i - 1][j - 2].color, color)) {
-        chess[i - 1][j - 2] = isPossiblePath(chess[i - 1][j - 2], color).payload
+        chess[i - 1][j - 2] = isPossiblePath(chess[i - 1][j - 2], color, check).payload
     }
     if (verifyBoundary({ i: i + 2, j: j + 1 }) && canMove(chess[i + 2][j + 1].color, color)) {
-        chess[i + 2][j + 1] = isPossiblePath(chess[i + 2][j + 1], color).payload
+        chess[i + 2][j + 1] = isPossiblePath(chess[i + 2][j + 1], color, check).payload
     }
     if (verifyBoundary({ i: i + 1, j: j + 2 }) && canMove(chess[i + 1][j + 2].color, color)) {
-        chess[i + 1][j + 2] = isPossiblePath(chess[i + 1][j + 2], color).payload
+        chess[i + 1][j + 2] = isPossiblePath(chess[i + 1][j + 2], color, check).payload
     }
     if (verifyBoundary({ i: i + 2, j: j - 1 }) && canMove(chess[i + 2][j - 1].color, color)) {
-        chess[i + 2][j - 1] = isPossiblePath(chess[i + 2][j - 1], color).payload
+        chess[i + 2][j - 1] = isPossiblePath(chess[i + 2][j - 1], color, check).payload
     }
     if (verifyBoundary({ i: i + 1, j: j - 2 }) && canMove(chess[i + 1][j - 2].color, color)) {
-        chess[i + 1][j - 2] = isPossiblePath(chess[i + 1][j - 2], color).payload
+        chess[i + 1][j - 2] = isPossiblePath(chess[i + 1][j - 2], color, check).payload
     }
     return chess
 }
 
 // Bishop Assist Logic
-function handleBishopAssist(chess, { i, j }, piece, color, move) {
+function handleBishopAssist(chess, { i, j }, piece, color, check, move) {
     if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
         return chess
     }
     if (move === MOVES.DEFAULTMOVE) {
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPLEFT), piece, color, MOVES.TOPLEFT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMLEFT), piece, color, MOVES.BOTTOMLEFT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPRIGHT), piece, color, MOVES.TOPRIGHT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMRIGHT), piece, color, MOVES.BOTTOMRIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPLEFT), piece, color, check, MOVES.TOPLEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMLEFT), piece, color, check, MOVES.BOTTOMLEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPRIGHT), piece, color, check, MOVES.TOPRIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMRIGHT), piece, color, check, MOVES.BOTTOMRIGHT)
         return chess
     }
-    let data = isPossiblePath(chess[i][j], color)
+    let data = isPossiblePath(chess[i][j], color, check)
     chess[i][j] = data.payload
     if (!data.check) {
         return
     }
-    handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, move)
+    handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, check, move)
 }
 
 // Queen Assist Logic
-function handleQueenAssist(chess, { i, j }, piece, color, move) {
+function handleQueenAssist(chess, { i, j }, piece, color, check, move) {
     if (!verifyBoundary({ i, j }) || (move !== MOVES.DEFAULTMOVE && !canMove(chess[i][j].color, color))) {
         return chess
     }
     if (move === MOVES.DEFAULTMOVE) {
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOP), piece, color, MOVES.TOP)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOM), piece, color, MOVES.BOTTOM)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.LEFT), piece, color, MOVES.LEFT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.RIGHT), piece, color, MOVES.RIGHT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPLEFT), piece, color, MOVES.TOPLEFT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMLEFT), piece, color, MOVES.BOTTOMLEFT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPRIGHT), piece, color, MOVES.TOPRIGHT)
-        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMRIGHT), piece, color, MOVES.BOTTOMRIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOP), piece, color, check, MOVES.TOP)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOM), piece, color, check, MOVES.BOTTOM)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.LEFT), piece, color, check, MOVES.LEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.RIGHT), piece, color, check, MOVES.RIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPLEFT), piece, color, check, MOVES.TOPLEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMLEFT), piece, color, check, MOVES.BOTTOMLEFT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.TOPRIGHT), piece, color, check, MOVES.TOPRIGHT)
+        handleRookAssist(chess, changeIndex({ i, j }, MOVES.BOTTOMRIGHT), piece, color, check, MOVES.BOTTOMRIGHT)
         return chess
     }
-    let data = isPossiblePath(chess[i][j], color)
+    let data = isPossiblePath(chess[i][j], color, check)
     chess[i][j] = data.payload
     if (!data.check) {
         return
     }
-    handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, move)
+    handleRookAssist(chess, changeIndex({ i, j }, move), piece, color, check, move)
 }
 // Function to check if king move is possible or not
 function isKingPossiblePath(element, color) {
@@ -293,18 +293,18 @@ function handleKingAssist(chess, { i, j }, piece, color) {
 }
 
 // Function to handle Player Assist
-function handleMoveAssist({ rotation, chess }, chance, { index, piece, color }) {
+function handleMoveAssist({ rotation, chess, check }, chance, { index, piece, color }) {
     switch (piece) {
         case NAMING.PAWN:
-            return handlePawnAssist({ rotation, chess }, index, piece, color)
+            return handlePawnAssist({ rotation, chess, check }, index, piece, color)
         case NAMING.ROOK:
-            return handleRookAssist(chess, index, piece, color, MOVES.DEFAULTMOVE)
+            return handleRookAssist(chess, index, piece, color, check, MOVES.DEFAULTMOVE)
         case NAMING.KNIGHT:
-            return handleKnightAssist(chess, index, piece, color)
+            return handleKnightAssist(chess, index, piece, color, check)
         case NAMING.BISHOP:
-            return handleBishopAssist(chess, index, piece, color, MOVES.DEFAULTMOVE)
+            return handleBishopAssist(chess, index, piece, color, check, MOVES.DEFAULTMOVE)
         case NAMING.QUEEN:
-            return handleQueenAssist(chess, index, piece, color, MOVES.DEFAULTMOVE)
+            return handleQueenAssist(chess, index, piece, color, check, MOVES.DEFAULTMOVE)
         case NAMING.KING:
             return handleKingAssist(chess, index, piece, color)
         default:
@@ -313,8 +313,8 @@ function handleMoveAssist({ rotation, chess }, chance, { index, piece, color }) 
 }
 
 // Function to verify if player choosen correct piece
-function verifySelectPiece(chance, color) {
-    return (chance === color)
+function verifySelectPiece(chance, color, myColor) {
+    return (chance === color && color === myColor && chance === myColor)
 }
 
 // Function to remove previous data
@@ -351,10 +351,13 @@ function deepCleanData(state) {
 
 // Functions to check path for best moves
 
-
+let check = false
+let checkCount = 0
 // Function to check if king is safe or not
 function isKingSafe(data, color) {
     if (data.color !== color && data.piece === NAMING.KING) {
+        check = true
+        checkCount++;
         return { check: CONSTANTS.OPPONENTKING, payload: data }
     }
     if (data.color === color) {
@@ -744,9 +747,11 @@ function verifyKingPath(chess, { i, j }, piece, color) {
     return chess
 }
 function verifyPaths({ chess, rotation, selectedPiece, chance }) {
+    console.log(chance)
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             let color = (chance === COLOR.BLACK) ? COLOR.WHITE : COLOR.BLACK
+            console.log(color)
             if (chess[i][j].color === color) {
                 switch (chess[i][j].piece) {
                     case NAMING.PAWN:
@@ -782,8 +787,9 @@ function handleSelectMove(state, payload) {
     if (state.selectedPiece.index.i !== undefined && state.selectedPiece.index.j !== undefined) {
         state.chess[payload.index.i][payload.index.j] = state.chess[state.selectedPiece.index.i][state.selectedPiece.index.j]
         state.chess[state.selectedPiece.index.i][state.selectedPiece.index.j] = { piece: NAMING.DEFAULT, color: COLOR.DEFAULT, image: '' }
-        state.chance = ''
+        state.chance = state.chance == COLOR.BLACK ? COLOR.WHITE : COLOR.BLACK
         const data = deepCleanData(state)
+        return data
     }
     return state
 }
@@ -793,16 +799,20 @@ export function handleReducer(state, { type, payload }) {
     switch (type) {
         case TYPES.SELECTPIECE:
             state = cleanData(state)
-            if (verifySelectPiece(state.chance, payload.color)) {
+            if (verifySelectPiece(state.chance, payload.color, payload.myColor)) {
                 return { ...state, selectedPiece: payload, chess: handleMoveAssist(state, state.chance, payload) }
             }
             return { ...state }
         case TYPES.SELECTMOVE:
             chessSound.play()
             let data = { ...handleSelectMove(state, payload) }
+            console.log(data.chess)
             payload.socket.emit('UserMove', { opponentDetails: payload.opponentDetails, chess: data.chess })
+            return data
         case TYPES.VERIFYPATHS:
-            return { ...verifyPaths(state) }
+            check = false
+            checkCount = 0
+            return { ...verifyPaths(deepCleanData(state)), check, checkCount }
         case TYPES.CHANGECHANCE:
             return { ...state, chance: payload }
         case TYPES.UPDATEBOARD:
@@ -828,4 +838,70 @@ export function handleResize(chessContainerRef) {
         chessContainerRef.current.style.gridTemplateRows = `repeat(8, ${height / 8}px)`
     }
 
+}
+
+export function getId() {
+    const id = localStorage.getItem('roomId')
+    if (id == null) {
+        const newId = `${Math.ceil(Math.random() * 1e9)}`
+        localStorage.setItem('id', newId)
+        return newId
+    }
+    return id
+}
+
+export function handleGameState(state, { type, payload }) {
+    switch (type) {
+        case TYPES.SETMYNAME:
+            return { ...state, myDetails: { ...state.myDetails, name: payload } }
+        case TYPES.SETMYPHOTO:
+            return { ...state, myDetails: { ...state.myDetails, profilePic: payload } }
+        case TYPES.LOGIN:
+            return { ...state, connect: payload }
+        case TYPES.OPPONENTDETAILS:
+            return { ...state, opponentDetails: payload }
+        case TYPES.SETGAMEROOMID:
+            return { ...state, gameRoomId: payload }
+        case TYPES.SETSOCKETID:
+            return { ...state, myDetails: { ...state.myDetails, socketId: payload } }
+        case TYPES.SETMYCOLOR:
+            return { ...state, myDetails: { ...state.myDetails, color: payload } }
+        case TYPES.SETINGAME:
+            return { ...state, inGame: payload }
+        case TYPES.RESETSOCKET:
+            return {
+                inGame: false,
+                connect: true,
+                gameRoomId: '',
+                myDetails: {
+                    name: state.myDetails.name,
+                    roomId: getId(),
+                    color: '',
+                    socketId: state.myDetails.name
+                },
+                opponentDetails: {
+                    name: '',
+                    profilePic: '',
+                    color: '',
+                    socketId: null
+                }
+            }
+        default:
+            return { ...state }
+    }
+}
+
+export function handleColor(backgroundColor, selectedPieceIndex, currentBoxIndex) {
+    if (backgroundColor !== undefined && backgroundColor !== null) {
+        return backgroundColor
+    }
+    if ((selectedPieceIndex.index.i === currentBoxIndex.i && selectedPieceIndex.index.j === currentBoxIndex.j)) {
+        return CONSTANTS.SELECTCOLOR
+    }
+    else if ((currentBoxIndex.i + currentBoxIndex.j) % 2 === 0) {
+        return CONSTANTS.WHITE
+    }
+    else {
+        return CONSTANTS.GREEN
+    }
 }

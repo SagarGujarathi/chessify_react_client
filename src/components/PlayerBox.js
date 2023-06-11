@@ -1,17 +1,36 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import '../css/PlayerBox.css'
 import profile from '../images/profile.png'
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { COLOR } from '../constants';
+import { COLOR, PLAYERSTATE } from '../constants';
 import { chessContext } from '../App';
-const PLAYERSTATE = {
-    ACTIVEWHITE: '#ECEEF0',
-    INACTIVEWHITE: '#989795',
-    ACTIVEBLACK: '#252422',
-    INACTIVEBLACK: '#62605E'
-}
+
 function PlayerBox({ data }) {
     const { chess } = useContext(chessContext)
+    const [time, setTime] = useState({ min: 10, sec: 0 })
+    const [isActive, setIsActive] = useState(chess.chance == data.color)
+    function handleTime() {
+        setTime((prev) => {
+            if (prev.sec === 0) {
+                prev.sec = 59
+                prev.min--
+            }
+            else {
+                prev.sec--
+            }
+            return { ...prev }
+        })
+    }
+    useEffect(() => {
+        setIsActive(chess.chance == data.color)
+    }, [chess.chance])
+    useEffect(() => {
+        let timer;
+        if (isActive) {
+            timer = setInterval(() => handleTime(), 1000)
+        }
+        return () => clearInterval(timer)
+    }, [isActive])
     return (
         <>
             {
@@ -26,12 +45,12 @@ function PlayerBox({ data }) {
                     </span>
                     <div className="time-container" style={
                         {
-                            backgroundColor: `${data.color == COLOR.BLACK ? data.color == chess.chance ? PLAYERSTATE.ACTIVEBLACK : PLAYERSTATE.INACTIVEBLACK : data.color == chess.chance ? PLAYERSTATE.ACTIVEWHITE : PLAYERSTATE.INACTIVEWHITE}`,
-                            color: `${data.color == COLOR.BLACK ? data.color == chess.chance ? PLAYERSTATE.INACTIVEBLACK : PLAYERSTATE.ACTIVEBLACK : data.color == chess.chance ? PLAYERSTATE.INACTIVEWHITE : PLAYERSTATE.ACTIVEWHITE}`
+                            backgroundColor: `${data.color == COLOR.BLACK ? isActive ? PLAYERSTATE.ACTIVEBLACK : PLAYERSTATE.INACTIVEBLACK : isActive ? PLAYERSTATE.ACTIVEWHITE : PLAYERSTATE.INACTIVEWHITE}`,
+                            color: `${data.color == COLOR.BLACK ? isActive ? PLAYERSTATE.INACTIVEBLACK : PLAYERSTATE.ACTIVEBLACK : isActive ? PLAYERSTATE.INACTIVEWHITE : PLAYERSTATE.ACTIVEWHITE}`
                         }
                     }>
                         <AccessTimeIcon sx={{ fontSize: '1.5rem' }} />
-                        <span>8:01</span>
+                        <span>{`${time.min <= 9 ? `0${time.min}` : time.min}:${time.sec <= 9 ? `0${time.sec}` : time.sec}`}</span>
                     </div>
                 </div>
             }

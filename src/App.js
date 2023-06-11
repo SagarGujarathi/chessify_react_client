@@ -24,9 +24,7 @@ function App() {
   useEffect(() => {
     if (socket == null) return
     socket.on('InitGame', (data) => {
-      if (data.black.socketId == socket.id) {
-        dispatch({ type: TYPES.CHANGECHANCE, payload: COLOR.BLACK })
-      }
+      dispatch({ type: TYPES.CHANGECHANCE, payload: COLOR.BLACK })
     })
     socket.on('UserMove', (data) => {
       dispatch({ type: TYPES.CHANGECHANCE, payload: gameState.myDetails.color })
@@ -56,7 +54,9 @@ function App() {
             }
           </div>
           <div className="right-main-container">
-            <OnlinePlayers />
+            {!gameState.inGame &&
+              <OnlinePlayers />
+            }
             <div className="abort-draw-button-container">
               <button className='abort-button'>
                 <FlagIcon sx={{ fontSize: '1.6rem' }} /> Abort
@@ -67,7 +67,9 @@ function App() {
             </div>
           </div>
         </div>
-        <RequestPlay />
+        {!gameState.inGame &&
+          < RequestPlay />
+        }
         {!gameState.connect && <Login />}
       </chessContext.Provider>
     </>

@@ -11,6 +11,7 @@ import whitequeen from './images/pieces/whitequeen.png'
 import blackking from './images/pieces/blackking.png'
 import whiteking from './images/pieces/whiteking.png'
 import circle from './images/circle.png'
+import { getId } from './functions'
 export const NAMING = {
     PAWN: 'pawn',
     ROOK: 'rook',
@@ -148,7 +149,8 @@ export const TYPES = {
     SETMYCOLOR: 'setmycolor',
     SETINGAME: 'setingame',
     UPDATEBOARD: 'updateboard',
-    VERIFYPATHS: 'verifypaths'
+    VERIFYPATHS: 'verifypaths',
+    RESETSOCKET: 'resetsocket'
 }
 
 export const MOVES = {
@@ -161,4 +163,29 @@ export const MOVES = {
     BOTTOMLEFT: { i: 1, j: -1 },
     BOTTOMRIGHT: { i: 1, j: 1 },
     DEFAULTMOVE: 'defaultmove'
+}
+export const GAMESTATETEMPLATE = {
+    inGame: false,
+    connect: false,
+    gameRoomId: '',
+    myDetails: {
+        name: '',
+        profilePic: '',
+        roomId: getId(),
+        color: '',
+        socketId: null
+    },
+    opponentDetails: {
+        name: '',
+        profilePic: '',
+        color: '',
+        socketId: null
+    }
+}
+
+export const PLAYERSTATE = {
+    ACTIVEWHITE: '#ECEEF0',
+    INACTIVEWHITE: '#989795',
+    ACTIVEBLACK: '#252422',
+    INACTIVEBLACK: '#62605E'
 }

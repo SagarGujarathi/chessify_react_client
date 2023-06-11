@@ -3,15 +3,18 @@ const io = require('socket.io')(3000, { cors: { origin: '*' } })
 function getPlayersData() {
     let data = []
     io.sockets.sockets.forEach(s => {
-        data.push({ name: s.handshake.query.name, roomId: s.handshake.query.roomId, socketId: s.id, profilePic: s.handshake.query.profilePic })
+        data.push({ name: s.handshake.query.name, roomId: s.handshake.query.roomId, socketId: s.id })
     })
     return data
 }
 io.on('connection', (socket) => {
     console.log(`New player joined! Name: ${socket.handshake.query.name}`)
     io.sockets.emit('OnlinePlayers', getPlayersData())
-    socket.on('disconnect', () => {
+    socket.on('disconnecting', () => {
         console.log(`New player disconnected! Name: ${socket.handshake.query.name}`)
+        // console.log(io.sockets.manager.roomClients[socket.id])
+        console.log(Object.keys(socket.adapter.rooms))
+        // io.to(socket.handshake.query.roomId).emit('StopGame', { name: socket.handshake.query.name })
         io.sockets.emit('OnlinePlayers', getPlayersData())
     })
 

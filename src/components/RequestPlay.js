@@ -3,7 +3,7 @@ import { SocketContext } from '../contexts/SocketProvider'
 import '../css/RequestPlay.css'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
-function Alert({ message, button }) {
+function Alert() {
     const { socket } = useContext(SocketContext)
     const [requestData, setRequestData] = useState('')
     function acceptRequest() {
